@@ -24,18 +24,49 @@ class RolesController extends Controller
                 ->orderBy('created_at', 'desc');
 
             return DataTables::of($roles)
-                ->addColumn('permissions', function ($role) {
-                    if ($role->permissions->count() > 0) {
-                        $permissions = '';
-                        foreach ($role->permissions as $permission) {
-                            $permissions .= '<span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 mr-2 mb-2 shadow-sm">' . $permission->name . '</span>';
-                        }
-                        return $permissions;
-                    }
-                    return '<span class="text-gray-500 text-sm">لا توجد صلاحيات</span>';
-                })
+				->addColumn('permissions', function ($role) {
+					if ($role->permissions->count() === 0) {
+						return '<span class="text-gray-500 text-sm">لا توجد صلاحيات</span>';
+					}
+					$grouped = [];
+					foreach ($role->permissions as $permission) {
+						$parts = explode('_', $permission->name);
+						$action = array_shift($parts); 
+						$module = implode('_', $parts);
+						$translatedModule = __('modules.' . $module);
+						if ($translatedModule === 'modules.' . $module) {
+							$translatedModule = ucfirst(str_replace('_', ' ', $module));
+						}
+						$translatedAction = __('permissions.' . $action);
+						if ($translatedAction === 'permissions.' . $action) {
+							$translatedAction = $action;
+						}
+						$grouped[$translatedModule][] = $translatedAction;
+					}
+						$output = '<div class="space-y-2">';
+						foreach ($grouped as $module => $actions) {
+							$output .= '<div class="flex items-center flex-wrap border-b pb-2 mb-2">';
+							$output .= '<div class="font-semibold text-gray-800 ml-2">' . e($module) . ':</div>';
+							foreach ($actions as $action) {
+								$colorClass = match ($action) {
+									'عرض' => 'bg-blue-100 text-blue-700 border-blue-300',
+									'إضافة' => 'bg-green-100 text-green-700 border-green-300',
+									'تعديل' => 'bg-yellow-100 text-yellow-700 border-yellow-300',
+									'حذف' => 'bg-red-100 text-red-700 border-red-300',
+									default => 'bg-gray-100 text-gray-700 border-gray-300',
+								};
+						
+								$output .= '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ' . $colorClass . ' mr-1">'
+										. e($action) . '</span>';
+							}
+							$output .= '</div>';
+						}
+						$output .= '</div>';
+					return $output;
+				})
                 ->addColumn('created_at_formatted', function ($role) {
-                    return $role->created_at->format('Y-m-d H:i');
+                   return $role->created_at->locale('ar')->translatedFormat('l، j F Y - h:i A');
+
                 })
                 ->addColumn('actions', function ($role) {
                     return view('roles.partials.actions', compact('role'))->render();

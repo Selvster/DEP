@@ -27,29 +27,67 @@
                 @enderror
             </div>
 
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                    الصلاحيات
-                </label>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach($permissions as $permission)
-                        <div class="flex items-center">
-                            <input type="checkbox" 
-                                   id="permission_{{ $permission->id }}" 
-                                   name="permissions[]" 
-                                   value="{{ $permission->id }}"
-                                   {{ in_array($permission->id, $role->permissions->pluck('id')->toArray()) ? 'checked' : '' }}
-                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <label for="permission_{{ $permission->id }}" class="mr-2 text-sm text-gray-700">
-                                {{ $permission->name }}
-                            </label>
-                        </div>
-                    @endforeach
-                </div>
-                @error('permissions')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
+			<div class="mb-6">
+				<label class="block text-sm font-medium text-gray-700 mb-2">
+					الصلاحيات
+				</label>
+			
+				<div class="overflow-x-auto border rounded-lg">
+					<table class="min-w-full divide-y divide-gray-200 text-right">
+						<thead class="bg-gray-100">
+							<tr class="text-center">
+								<th class="px-4 py-2 text-sm font-semibold text-gray-700">الموديول</th>
+								<th class="px-4 py-2 text-sm font-semibold text-gray-700">عرض</th>
+								<th class="px-4 py-2 text-sm font-semibold text-gray-700">إنشاء</th>
+								<th class="px-4 py-2 text-sm font-semibold text-gray-700">تعديل</th>
+								<th class="px-4 py-2 text-sm font-semibold text-gray-700">حذف</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-gray-100">
+							@php
+							
+								$groupedPermissions = $permissions->groupBy(function ($permission) {
+									$parts = explode('_', $permission->name);
+									array_shift($parts);
+									return strtolower(implode('_', $parts));
+								});
+								$rolePermissionIds = $role->permissions->pluck('id')->toArray();
+							@endphp
+			
+							@foreach($groupedPermissions as $module => $modulePermissions)
+								<tr>
+									<td class="px-4 py-2 font-medium text-gray-800">
+										{{ __('modules.' . $module) }}
+									</td>
+									@foreach (['view', 'create', 'edit', 'delete'] as $action)
+										@php
+											$perm = $permissions->first(function ($p) use ($action, $module) {
+												return strtolower($p->name) === strtolower($action . '_' . $module);
+											});
+										@endphp
+										<td class="px-4 py-2 text-center">
+											@if($perm)
+												<input type="checkbox"
+													id="permission_{{ $perm->id }}"
+													name="permissions[]"
+													value="{{ $perm->id }}"
+													class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+													{{ in_array($perm->id, $rolePermissionIds) ? 'checked' : '' }}>
+											@else
+												<span class="text-gray-400">—</span>
+											@endif
+										</td>
+									@endforeach
+								</tr>
+							@endforeach
+						</tbody>
+					</table>
+				</div>
+				@error('permissions')
+					<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+				@enderror
+			</div>
+
 
             <div class="mt-6 flex justify-end space-x-3 space-x-reverse">
                 <a href="{{ route('roles.index') }}"

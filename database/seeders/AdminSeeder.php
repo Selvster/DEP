@@ -19,22 +19,27 @@ class AdminSeeder extends Seeder
         // Create permissions
         $permissions = [
             // User management
+            'view_user',
             'create_user',
             'edit_user',
             'delete_user',
             // Centers management
+            'view_center',
             'create_center',
             'edit_center',
             'delete_center',
             // Request Types management
+            'view_request_type',
             'create_request_type',
             'edit_request_type',
             'delete_request_type',
             // Request Statuses management
+            'view_request_status',
             'create_request_status',
             'edit_request_status',
             'delete_request_status',
             // Requests management
+            'view_request',
             'create_request',
             'edit_request',
             'delete_request',

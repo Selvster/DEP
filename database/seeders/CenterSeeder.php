@@ -10,11 +10,15 @@ class CenterSeeder extends Seeder
     public function run(): void
     {
         $centers = [
-            ['name' => 'مركز المحلة الكبرى', 'is_active' => true, 'created_by' => 1],
-            ['name' => 'مركز طنطا', 'is_active' => true, 'created_by' => 1],
-            ['name' => 'مركز كفر الزيات', 'is_active' => true, 'created_by' => 1],
-            ['name' => 'مركز زفتى', 'is_active' => true, 'created_by' => 1],
-            ['name' => 'مركز السنطة', 'is_active' => true, 'created_by' => 1],
+            ['name' => 'أشمون', 'is_active' => true, 'created_by' => 1],
+            ['name' => 'الباجور', 'is_active' => true, 'created_by' => 1],
+            ['name' => 'بركة السبع', 'is_active' => true, 'created_by' => 1],
+            ['name' => 'تلا', 'is_active' => true, 'created_by' => 1],
+            ['name' => 'الشهداء', 'is_active' => true, 'created_by' => 1],
+            ['name' => 'شبين الكوم', 'is_active' => true, 'created_by' => 1],
+            ['name' => 'قويسنا', 'is_active' => true, 'created_by' => 1],
+            ['name' => 'منوف', 'is_active' => true, 'created_by' => 1],
+            ['name' => 'السادات', 'is_active' => true, 'created_by' => 1],
         ];
 
         foreach ($centers as $center) {

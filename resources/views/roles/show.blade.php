@@ -40,20 +40,53 @@
                 </dl>
             </div>
 
-            <div>
-                <h3 class="text-lg font-medium text-gray-900 mb-4">الصلاحيات</h3>
-                @if($role->permissions->count() > 0)
-                    <div class="space-y-2">
-                        @foreach($role->permissions as $permission)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mr-2 mb-2">
-                                {{ $permission->name }}
-                            </span>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-gray-500">لا توجد صلاحيات مرتبطة بهذا الدور</p>
-                @endif
-            </div>
+			<div>
+				<h3 class="text-lg font-medium text-gray-900 mb-4">الصلاحيات</h3>
+				@if($role->permissions->count() > 0)
+					@php
+					
+						$grouped = [];
+						foreach ($role->permissions as $permission) {
+							$parts = explode('_', $permission->name);
+							$action = array_shift($parts);
+							$module = implode('_', $parts);
+							$translatedModule = __('modules.' . $module);
+							if ($translatedModule === 'modules.' . $module) {
+								$translatedModule = ucfirst(str_replace('_', ' ', $module));
+							}
+							$translatedAction = __('permissions.' . $action);
+							if ($translatedAction === 'permissions.' . $action) {
+								$translatedAction = $action;
+							}
+							$grouped[$translatedModule][] = $translatedAction;
+						}
+					@endphp
+					<div class="space-y-2">
+						@foreach($grouped as $module => $actions)
+							<div class="flex items-center flex-wrap border-b pb-2 mb-2">
+								<div class="font-semibold text-gray-800 ml-2">{{ $module }}:</div>
+								@foreach($actions as $action)
+									@php
+										$colorClass = match ($action) {
+											'عرض' => 'bg-blue-100 text-blue-700 border-blue-300',
+											'إضافة' => 'bg-green-100 text-green-700 border-green-300',
+											'تعديل' => 'bg-yellow-100 text-yellow-700 border-yellow-300',
+											'حذف' => 'bg-red-100 text-red-700 border-red-300',
+											default => 'bg-gray-100 text-gray-700 border-gray-300',
+										};
+									@endphp
+									<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border {{ $colorClass }} mr-1">
+										{{ $action }}
+									</span>
+								@endforeach
+							</div>
+						@endforeach
+					</div>
+				@else
+					<p class="text-gray-500">لا توجد صلاحيات مرتبطة بهذا الدور</p>
+				@endif
+			</div>
+
         </div>
     </div>
 </x-app-layout>
